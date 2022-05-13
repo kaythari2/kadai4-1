@@ -4,6 +4,12 @@ require_once("dbcontroller.php");
 require_once("functions.php");
 
 $dbController = new DBController($connector);
+$mCommons = $dbController->getAllMCommon();
+if (isset($_GET["search"]) && (!empty($_GET['keyword']) || !empty($_GET['frame_number']))) {
+    $tCars = $dbController->searchTCars(htmlspecialchars($_GET["keyword"]), htmlspecialchars($_GET["frame_number"]));
+} else {
+    $tCars = $dbController->getAllTCars();
+}
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -89,34 +95,46 @@ $dbController = new DBController($connector);
                                 </tr>
                             </thead>
                             <tbody>
-                        <?php 
-                        if (isset($_GET["search"]) && (!empty($_GET['keyword']) || !empty($_GET['frame_number']))) {
-                            $tCars = $dbController->searchTCars(htmlspecialchars($_GET["keyword"]), htmlspecialchars($_GET["frame_number"]));
-                        }else{
-                            $tCars =$dbController->getAllTCars();
-                        }
-                        foreach ($tCars as $car) {
-                        ?>
-                          <tr>
-                            <td><?php echo $car['maker_name'];?></td>
-                            <td><?php echo $car['car_name'];?></td>
-                            <td><?php echo $car['car_type'];?></td>
-                            <td><?php echo $car['frame_number'];?></td>
-                            <td><?php echo toWareki($car['first_entry_date']);?></td>
-                            <td><?php 
-                            $mileageUnitCode = $dbController->getMCommonByTypeAndCode(2, $car['mileage_unit_cd']);
-                            echo formattedMileage($car['mileage'], $mileageUnitCode);?></td>
-                            <td><?php echo formattedOutColor($car['out_color_name']);?></td>
-                            <td><?php 
-                            $shiftCode = $dbController->getMCommonByTypeAndCode(7, $car['shift_cd']);
-                            $shiftPosition = $dbController->getMCommonByTypeAndCode(6, $car['shift_posi_cd']);
-                            echo formattedShift($shiftCode, $car['shift_cnt'], $shiftPosition);?></td>
-                            <td><?php echo formattedSalePrice($car['sale_price']);?></td>
-                        </tr>
-                        <?php
-                        }
-                        ?>
-                    </tbody>
+                                <?php
+                                foreach ($tCars as $car) {
+                                ?>
+                                    <tr>
+                                        <td><?php
+                                            echo htmlspecialchars($car['maker_name']);
+                                            ?></td>
+                                        <td><?php
+                                            echo htmlspecialchars($car['car_name']);
+                                            ?></td>
+                                        <td><?php
+                                            echo htmlspecialchars($car['car_type']);
+                                            ?></td>
+                                        <td><?php
+                                            echo htmlspecialchars($car['frame_number']);
+                                            ?></td>
+                                        <td><?php
+                                            echo toWareki(htmlspecialchars($car['first_entry_date']));
+                                            ?></td>
+                                        <td><?php
+                                            $mileageUnitCode = htmlspecialchars($mCommons[2][$car['mileage_unit_cd']]);
+                                            echo formattedMileage(htmlspecialchars($car['mileage']), $mileageUnitCode);
+                                            ?></td>
+                                        <td><?php
+                                            echo formattedOutColor(htmlspecialchars($car['out_color_name']));
+                                            ?></td>
+                                        <td><?php
+                                            $shiftCode = htmlspecialchars($mCommons[7][$car['shift_cd']]);
+                                            $shiftPosition = htmlspecialchars($mCommons[6][$car['shift_posi_cd']]);
+                                            $shiftCount = htmlspecialchars($car['shift_cnt']);
+                                            echo formattedShift($shiftCode, $shiftCount, $shiftPosition);
+                                            ?></td>
+                                        <td><?php
+                                            echo formattedSalePrice(htmlspecialchars($car['sale_price']));
+                                            ?></td>
+                                    </tr>
+                                <?php
+                                }
+                                ?>
+                            </tbody>
                         </table>
                     </div>
                 </div><!-- End of.inner -->

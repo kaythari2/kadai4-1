@@ -15,17 +15,18 @@ class DBController
         return $result;
     }
 
-    public function getMCommonByTypeAndCode($type, $code)
-    {
-        $sql = "SELECT value1 FROM m_common WHERE m_common.data_type=:t and m_common.data_cd=:c";
-        $statement = $this->mConnector->prepare($sql);
-        $statement->bindValue(":t", $type);
-        $statement->bindValue(":c", $code);
-        $statement->execute();
-        $result = $statement->fetchAll();
-        if(empty($result)) return '';
-        return $result[0]['value1'];
-    }
+    public function getAllMCommon(){
+		$sql = "select data_type,data_cd,value1 from m_common";
+		$statement = $this->mConnector->prepare($sql);
+		$statement->execute();
+		$result=$statement->fetchAll();
+
+		$m_common=array();
+		foreach ($result as $value) {
+			$m_common[$value["data_type"]][$value["data_cd"]]=$value["value1"];
+		}
+		return $m_common;
+	}
 
     public function searchTCars ($keyword, $carNumber){
         $sql="SELECT * from t_car_base where ";
